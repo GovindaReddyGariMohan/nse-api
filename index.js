@@ -26,7 +26,7 @@ mongoose.connect(MONGO_URI, {
 app.get('/api/equities', async (req, res) => {
   try {
     // Fetch data from MongoDB
-    const data = await Equity.find().limit(2068);
+    const data = await Equity.find().limit(2500);
 
     // Calculate market cap for each equity and convert to Lakhs or Crores
     const updatedData = data.map(stock => {
@@ -100,7 +100,7 @@ app.get('/api/equities/:id', async (req, res) => {
 app.get('/api/trending-stocks', async (req, res) => {
   try {
     // Fetch stock data from MongoDB
-    const data = await Equity.find().limit(2068);
+    const data = await Equity.find().limit(2500);
 
     // Calculate percentage change and filter top trending stocks
     const stockStats = data.map(stock => {
