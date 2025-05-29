@@ -97,8 +97,46 @@ app.get('/api/equities/:id', async (req, res) => {
   }
 });
 
+app.get('/api/trending-stocks', async (req, res) => {
+  try {
+    // Fetch stock data from MongoDB
+    const data = await Equity.find().limit(2068);
+
+    // Calculate percentage change and filter top trending stocks
+    const stockStats = data.map(stock => {
+      const symbol = stock?.symbol || '';
+      const dayHigh = stock?.data?.priceInfo?.intraDayHighLow?.max || 0;
+      const dayLow = stock?.data?.priceInfo?.intraDayHighLow?.min || 0;
+      const previousClose = stock?.data?.priceInfo?.previousClose || 0;
+      const openPrice = stock?.data?.priceInfo?.open || 0;
+      const id=stock?._id
+      // Calculate percentage change from Previous Close to Day High
+      const percentageChangeHigh = ((dayHigh - previousClose) / previousClose) * 100;
 
 
+      return {
+        symbol,
+        percentageChangeHigh,
+        dayHigh,
+        dayLow,
+        previousClose,
+        openPrice,
+        id
+      };
+    });
+
+    // Sort stocks by highest percentage change from Previous Close to Day High
+    const topTrendingStocks = stockStats
+      .sort((a, b) => b.percentageChangeHigh - a.percentageChangeHigh)
+      .slice(0, 10);  // Top 10 stocks
+
+    // Send the top 10 trending stocks as a response
+    res.json(topTrendingStocks);
+  } catch (err) {
+    console.error('❌ Error fetching trending stocks:', err);
+    res.status(500).json({ error: 'Failed to fetch trending stocks' });
+  }
+});
 
 
 
